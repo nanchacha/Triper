@@ -266,18 +266,33 @@ clearBtn.addEventListener('click', clearMap);
 
 // Function to fetch highly rated places in current viewport
 function fetchTopPlaces() {
-    const bounds = map.getBounds();
-    if (!bounds) return;
+    const originalBounds = map.getBounds();
+    if (!originalBounds) return;
 
-    const requestLodging = { bounds: bounds, type: 'lodging' };
-    const requestRestaurants = { bounds: bounds, type: 'restaurant' };
+    const ne = originalBounds.getNorthEast();
+    const sw = originalBounds.getSouthWest();
+    const centerLat = map.getCenter().lat();
+
+    // ~1KM in degrees latitude
+    const latOffset = 0.009;
+    // ~1KM in degrees longitude (adjusting for earth's curvature based on current latitude)
+    const lngOffset = Math.abs(0.009 / Math.cos(centerLat * Math.PI / 180));
+
+    // Construct a new expanded bounds object
+    const expandedBounds = new google.maps.LatLngBounds(
+        new google.maps.LatLng(sw.lat() - latOffset, sw.lng() - lngOffset),
+        new google.maps.LatLng(ne.lat() + latOffset, ne.lng() + lngOffset)
+    );
+
+    const requestLodging = { bounds: expandedBounds, type: 'lodging' };
+    const requestRestaurants = { bounds: expandedBounds, type: 'restaurant' };
     const placesService = new google.maps.places.PlacesService(map);
 
     placesService.nearbySearch(requestLodging, handlePlacesResult);
     placesService.nearbySearch(requestRestaurants, handlePlacesResult);
 }
 
-function handlePlacesResult(results, status) {
+function handlePlacesResult(results, status, pagination) {
     if (status === google.maps.places.PlacesServiceStatus.OK && results) {
         results.forEach(place => {
             if (place.rating && place.rating >= 4.0 && place.user_ratings_total && place.user_ratings_total >= 500) {
@@ -287,6 +302,13 @@ function handlePlacesResult(results, status) {
                 }
             }
         });
+
+        // Automatically load deeper results to prevent skipped places (Gmaps returns max 20 per page)
+        if (pagination && pagination.hasNextPage) {
+            setTimeout(() => {
+                pagination.nextPage();
+            }, 2000);
+        }
     }
 }
 
