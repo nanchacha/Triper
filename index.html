@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triper - Map Route Planner</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Triper</h1>
+                <p>Plan your journey step by step</p>
+            </div>
+            
+            <div class="waypoints-container">
+                <h3>Route Points</h3>
+                <ul id="waypoints-list" class="waypoints-list">
+                    <!-- Waypoints will be dynamically added here -->
+                    <li class="empty-state">Click on the map to add your first point.</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-actions">
+                <button id="clear-btn" class="btn btn-danger">Clear Route</button>
+            </div>
+        </aside>
+
+        <main class="map-container">
+            <div id="map"></div>
+            <!-- API Key Warning Overlay -->
+            <div id="api-warning" class="api-warning hidden">
+                <p>Please enter your Google Maps API Key in <code>config.js</code> to enable full functionality.</p>
+            </div>
+            <!-- Load Data Button -->
+            <button id="load-data-btn" class="load-data-btn">현재 영역 검색</button>
+            <!-- Zoom Indicator -->
+            <div id="zoom-indicator" class="zoom-indicator">Zoom: 13</div>
+        </main>
+
+        <aside class="right-panel hidden" id="details-panel">
+            <div class="dp-header">
+                <button id="close-dp-btn" class="btn-close">&times;</button>
+                <h2 id="dp-title">Place Name</h2>
+                <div class="dp-rating" id="dp-rating">⭐ 0.0 (0)</div>
+                <div class="dp-address" id="dp-address">Address</div>
+            </div>
+            <div class="dp-content">
+                <div class="dp-photos" id="dp-photos"></div>
+                <h3 class="dp-section-title">Reviews</h3>
+                <div class="dp-reviews" id="dp-reviews"></div>
+            </div>
+            <div class="dp-footer">
+                <button id="add-route-btn" class="btn btn-primary">Add to Route</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Load config and dynamically inject Google Maps script to avoid hardcoding API Key -->
+    <script src="config.js"></script>
+    <script>
+        if (window.GOOGLE_MAPS_API_KEY && window.GOOGLE_MAPS_API_KEY !== "YOUR_API_KEY_HERE") {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${window.GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
