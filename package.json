@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "Google Maps web app",
   "scripts": {
-    "build": "echo \"window.GOOGLE_MAPS_API_KEY = '${GOOGLE_MAPS_API_KEY}';\" > config.js"
+    "build": "mkdir -p public && cp index.html style.css script.js public/ && echo \"window.GOOGLE_MAPS_API_KEY = '${GOOGLE_MAPS_API_KEY}';\" > public/config.js"
   }
 }
