@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Triper - Map Route Planner</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=6">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -48,7 +48,11 @@
                 <div class="dp-address" id="dp-address">Address</div>
             </div>
             <div class="dp-content">
-                <div class="dp-photos" id="dp-photos"></div>
+                <div class="dp-photos-container">
+                    <button id="prev-photo-btn" class="nav-btn prev-btn">❮</button>
+                    <div class="dp-photos" id="dp-photos"></div>
+                    <button id="next-photo-btn" class="nav-btn next-btn">❯</button>
+                </div>
                 <h3 class="dp-section-title">Reviews</h3>
                 <div class="dp-reviews" id="dp-reviews"></div>
             </div>
@@ -69,6 +73,6 @@
             document.head.appendChild(script);
         }
     </script>
-    <script src="script.js"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>

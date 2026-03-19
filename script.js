@@ -22,6 +22,8 @@ const dpTitle = document.getElementById('dp-title');
 const dpRating = document.getElementById('dp-rating');
 const dpAddress = document.getElementById('dp-address');
 const dpPhotos = document.getElementById('dp-photos');
+const prevPhotoBtn = document.getElementById('prev-photo-btn');
+const nextPhotoBtn = document.getElementById('next-photo-btn');
 const dpReviews = document.getElementById('dp-reviews');
 const addRouteBtn = document.getElementById('add-route-btn');
 const zoomIndicator = document.getElementById('zoom-indicator');
@@ -398,7 +400,20 @@ function renderDetailsPanel(place) {
     
     // Photos
     dpPhotos.innerHTML = '';
+    dpPhotos.scrollLeft = 0;
     if (place.photos && place.photos.length > 0) {
+        if (place.photos.length <= 1) {
+            prevPhotoBtn.style.display = 'none';
+            nextPhotoBtn.style.display = 'none';
+        } else {
+            prevPhotoBtn.style.display = 'flex';
+            nextPhotoBtn.style.display = 'flex';
+            // Reset opacity/pointer overrides, then set initial visibility
+            prevPhotoBtn.style.opacity = '0';
+            prevPhotoBtn.style.pointerEvents = 'none';
+            nextPhotoBtn.style.opacity = '';
+            nextPhotoBtn.style.pointerEvents = '';
+        }
         place.photos.forEach(photoObj => {
             const imgUrl = photoObj.getUrl({ maxWidth: 400, maxHeight: 300 });
             const img = document.createElement('img');
@@ -407,6 +422,8 @@ function renderDetailsPanel(place) {
             dpPhotos.appendChild(img);
         });
     } else {
+        prevPhotoBtn.style.display = 'none';
+        nextPhotoBtn.style.display = 'none';
         dpPhotos.innerHTML = '<span style="color:var(--text-secondary); font-size:0.85rem">사진이 없습니다.</span>';
     }
 
@@ -443,12 +460,75 @@ addRouteBtn.addEventListener('click', () => {
 });
 
 loadDataBtn.addEventListener('click', () => {
+    if (map && map.getZoom() < 13) {
+        alert("지도를 좀 더 확대해 주세요. (줌 레벨 13 이상에서 검색 가능)");
+        return;
+    }
     const originalText = loadDataBtn.textContent;
     loadDataBtn.textContent = '검색 중...';
     fetchTopPlaces();
     setTimeout(() => {
         loadDataBtn.textContent = originalText;
     }, 600); // Visual feedback
+});
+
+function getCenteredPhotoIndex() {
+    const cards = Array.from(dpPhotos.querySelectorAll('.dp-photo-card'));
+    if (!cards.length) return 0;
+
+    const containerRect = dpPhotos.getBoundingClientRect();
+    const containerCenter = containerRect.left + containerRect.width / 2;
+
+    let closestIndex = 0;
+    let minDiff = Infinity;
+
+    cards.forEach((card, index) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        const diff = Math.abs(cardCenter - containerCenter);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closestIndex = index;
+        }
+    });
+    return closestIndex;
+}
+
+function updateNavBtnVisibility() {
+    const cards = dpPhotos.querySelectorAll('.dp-photo-card');
+    if (!cards.length) return;
+    const currentIndex = getCenteredPhotoIndex();
+    // Hide prev button on first photo
+    prevPhotoBtn.style.opacity = currentIndex === 0 ? '0' : '';
+    prevPhotoBtn.style.pointerEvents = currentIndex === 0 ? 'none' : '';
+    // Hide next button on last photo
+    nextPhotoBtn.style.opacity = currentIndex === cards.length - 1 ? '0' : '';
+    nextPhotoBtn.style.pointerEvents = currentIndex === cards.length - 1 ? 'none' : '';
+}
+
+// Update button visibility on scroll (with small debounce so it fires after smooth scroll settles)
+let navScrollTimer = null;
+dpPhotos.addEventListener('scroll', () => {
+    clearTimeout(navScrollTimer);
+    navScrollTimer = setTimeout(updateNavBtnVisibility, 80);
+});
+
+prevPhotoBtn.addEventListener('click', () => {
+    const cards = dpPhotos.querySelectorAll('.dp-photo-card');
+    if (!cards.length) return;
+    const currentIndex = getCenteredPhotoIndex();
+    if (currentIndex > 0) {
+        cards[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+});
+
+nextPhotoBtn.addEventListener('click', () => {
+    const cards = dpPhotos.querySelectorAll('.dp-photo-card');
+    if (!cards.length) return;
+    const currentIndex = getCenteredPhotoIndex();
+    if (currentIndex < cards.length - 1) {
+        cards[currentIndex + 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
 });
 
 // Expose initMap for the API callback

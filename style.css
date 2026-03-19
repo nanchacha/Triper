@@ -60,6 +60,7 @@ body {
     font-weight: 700;
     background: linear-gradient(135deg, #60a5fa, #3b82f6);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
 }
@@ -327,6 +328,46 @@ body {
 .dp-content::-webkit-scrollbar { width: 6px; }
 .dp-content::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 4px; }
 
+/* Photos Grid Container */
+.dp-photos-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.nav-btn {
+    position: absolute;
+    top: 100px; /* Vertically center relative to the 200px high photo */
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    transition: background 0.2s, opacity 0.2s;
+    opacity: 0.8; /* Always visible to users */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.dp-photos-container:hover .nav-btn {
+    opacity: 1;
+}
+
+.nav-btn:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.prev-btn { left: 4px; }
+.next-btn { right: 4px; }
+
 /* Photos Grid */
 .dp-photos {
     display: flex;
@@ -334,20 +375,22 @@ body {
     overflow-x: auto;
     overflow-y: hidden;
     padding-bottom: 0.5rem;
-    scroll-snap-type: x mandatory;
     flex-shrink: 0;
-    min-height: 155px;
+    min-height: 215px;
+    width: 100%;
+    scroll-behavior: smooth;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 }
 
-.dp-photos::-webkit-scrollbar { height: 4px; }
-.dp-photos::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 4px; }
+/* Hide scrollbar for Chrome, Safari and Opera */
+.dp-photos::-webkit-scrollbar { display: none; }
 
 .dp-photo-card {
-    min-width: 200px;
-    height: 140px;
+    min-width: 100%;
+    height: 200px;
     border-radius: 8px;
     object-fit: cover;
-    scroll-snap-align: start;
     background-color: #334155;
     flex-shrink: 0;
 }
