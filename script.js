@@ -45,6 +45,7 @@ function initMap() {
         center: seoul,
         disableDefaultUI: true, // cleaner look
         zoomControl: true,
+        gestureHandling: "greedy",
         styles: [
             { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
             { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
@@ -146,12 +147,29 @@ function initMap() {
     });
 
 
-    zoomIndicator.textContent = `Zoom: ${map.getZoom()}`;
+    const currentZoom = map.getZoom();
+    if (currentZoom < 13) {
+        zoomIndicator.textContent = "지도를 좀 더 확대해 주세요. (줌 13 이상 검색 가능)";
+        zoomIndicator.style.backgroundColor = "rgba(239, 68, 68, 0.9)";
+        zoomIndicator.style.color = "white";
+    } else {
+        zoomIndicator.textContent = `Zoom: ${currentZoom}`;
+        zoomIndicator.style.backgroundColor = "";
+        zoomIndicator.style.color = "";
+    }
 
     // Toggle labels based on zoom level
     map.addListener("zoom_changed", () => {
         const currentZoom = map.getZoom();
-        zoomIndicator.textContent = `Zoom: ${currentZoom}`;
+        if (currentZoom < 13) {
+            zoomIndicator.textContent = "지도를 좀 더 확대해 주세요. (줌 13 이상 검색 가능)";
+            zoomIndicator.style.backgroundColor = "rgba(239, 68, 68, 0.9)";
+            zoomIndicator.style.color = "white";
+        } else {
+            zoomIndicator.textContent = `Zoom: ${currentZoom}`;
+            zoomIndicator.style.backgroundColor = "";
+            zoomIndicator.style.color = "";
+        }
         const showLabel = currentZoom >= 17;
         topPlacesMarkers.forEach(marker => {
             if (showLabel) {
