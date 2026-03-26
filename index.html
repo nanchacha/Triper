@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Triper - Map Route Planner</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -41,6 +41,11 @@
             <!-- API Key Warning Overlay -->
             <div id="api-warning" class="api-warning hidden">
                 <p>Please enter your Google Maps API Key in <code>config.js</code> to enable full functionality.</p>
+            </div>
+            <!-- Info Banner -->
+            <div class="info-banner">
+                <span class="info-icon">💡</span>
+                <p>지도 확대 후 현재 영역 검색을 눌러주세요. 평점 4.0 이상, 리뷰 500개 이상의 숙소와 식당만 검색 됩니다.</p>
             </div>
             <!-- Zoom Indicator -->
             <div id="zoom-indicator" class="zoom-indicator">Zoom: 13</div>
@@ -79,6 +84,6 @@
             document.head.appendChild(script);
         }
     </script>
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=8"></script>
 </body>
 </html>

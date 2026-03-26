@@ -140,9 +140,9 @@ function initMap() {
 
     // City Search Box Implementation
     const searchInput = document.getElementById("city-search");
-    const autocomplete = new google.maps.places.Autocomplete(searchInput);
-    
-    autocomplete.bindTo("bounds", map);
+    const autocomplete = new google.maps.places.Autocomplete(searchInput, {
+        types: ['(cities)'] // Restrict to cities and remove map bounding to search globally
+    });
 
     autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
@@ -152,12 +152,9 @@ function initMap() {
             return;
         }
 
-        if (place.geometry.viewport) {
-            map.fitBounds(place.geometry.viewport);
-        } else {
-            map.setCenter(place.geometry.location);
-            map.setZoom(13);
-        }
+        // Always center the map and forcefully set zoom to 13 as requested
+        map.setCenter(place.geometry.location);
+        map.setZoom(13);
     });
 
     // Listen to Map Clicks
