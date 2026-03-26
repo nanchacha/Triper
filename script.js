@@ -138,6 +138,28 @@ function initMap() {
     // Initialize places service
     const placesService = new google.maps.places.PlacesService(map);
 
+    // City Search Box Implementation
+    const searchInput = document.getElementById("city-search");
+    const autocomplete = new google.maps.places.Autocomplete(searchInput);
+    
+    autocomplete.bindTo("bounds", map);
+
+    autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+
+        if (!place.geometry || !place.geometry.location) {
+            window.alert("검색 결과가 없습니다: '" + place.name + "'");
+            return;
+        }
+
+        if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+        } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(13);
+        }
+    });
+
     // Listen to Map Clicks
     map.addListener("click", (e) => {
         if (e.placeId) {

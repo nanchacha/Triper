@@ -30,12 +30,18 @@
 
         <main class="map-container">
             <div id="map"></div>
+            <!-- Top Controls -->
+            <div class="top-center-controls">
+                <div class="search-container">
+                    <input id="city-search" type="text" placeholder="도시 검색 (예: 다낭)">
+                </div>
+                <!-- Load Data Button -->
+                <button id="load-data-btn" class="load-data-btn">현재 영역 검색</button>
+            </div>
             <!-- API Key Warning Overlay -->
             <div id="api-warning" class="api-warning hidden">
                 <p>Please enter your Google Maps API Key in <code>config.js</code> to enable full functionality.</p>
             </div>
-            <!-- Load Data Button -->
-            <button id="load-data-btn" class="load-data-btn">현재 영역 검색</button>
             <!-- Zoom Indicator -->
             <div id="zoom-indicator" class="zoom-indicator">Zoom: 13</div>
         </main>

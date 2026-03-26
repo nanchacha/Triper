@@ -449,12 +449,20 @@ body {
     background-color: var(--accent-hover);
 }
 
-/* Load Data Button */
-.load-data-btn {
+/* Top Center Controls */
+.top-center-controls {
     position: absolute;
     top: 1.5rem;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 100;
+}
+
+/* Load Data Button */
+.load-data-btn {
     background: var(--accent);
     color: white;
     border: none;
@@ -463,19 +471,48 @@ body {
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
-    z-index: 100;
     box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4);
     transition: all 0.2s ease;
     letter-spacing: 0.5px;
+    white-space: nowrap;
 }
 
 .load-data-btn:hover {
     background: var(--accent-hover);
-    transform: translateX(-50%) scale(1.05);
+    transform: scale(1.05);
 }
 
 .load-data-btn:active {
-    transform: translateX(-50%) scale(0.95);
+    transform: scale(0.95);
+}
+
+/* Search Bar */
+.search-container {
+    width: 300px;
+}
+
+#city-search {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 24px;
+    border: 1px solid var(--panel-border);
+    background-color: var(--panel-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+#city-search:focus {
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+#city-search::placeholder {
+    color: var(--text-secondary);
 }
 
 /* Zoom Indicator */
@@ -540,5 +577,16 @@ body {
     .load-data-btn {
         padding: 8px 16px;
         font-size: 0.85rem;
+    }
+
+    .top-center-controls {
+        width: calc(100% - 3rem);
+        flex-direction: column;
+        gap: 0.5rem;
+        top: 1.5rem;
+    }
+
+    .search-container {
+        width: 100%;
     }
 }
