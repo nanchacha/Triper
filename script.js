@@ -29,6 +29,76 @@ const addRouteBtn = document.getElementById('add-route-btn');
 const zoomIndicator = document.getElementById('zoom-indicator');
 const loadDataBtn = document.getElementById('load-data-btn');
 
+// Lightbox Elements
+const lightboxModal = document.getElementById('photo-lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const closeLightboxBtn = document.getElementById('close-lightbox-btn');
+const lbPrevBtn = document.getElementById('lb-prev-btn');
+const lbNextBtn = document.getElementById('lb-next-btn');
+
+let lightboxPhotos = [];
+let currentLightboxIndex = 0;
+
+function updateLightboxImg() {
+    if (!lightboxImg || !lightboxPhotos.length) return;
+    const highResUrl = lightboxPhotos[currentLightboxIndex].getUrl({ maxWidth: 1600, maxHeight: 1200 });
+    lightboxImg.src = highResUrl;
+    
+    // Update button states
+    if (lbPrevBtn) {
+        lbPrevBtn.style.display = currentLightboxIndex === 0 ? 'none' : 'flex';
+    }
+    if (lbNextBtn) {
+        lbNextBtn.style.display = currentLightboxIndex === lightboxPhotos.length - 1 ? 'none' : 'flex';
+    }
+}
+
+function openLightbox(photos, startIndex) {
+    if (!lightboxModal || !photos || !photos.length) return;
+    lightboxPhotos = photos;
+    currentLightboxIndex = startIndex;
+    updateLightboxImg();
+    lightboxModal.classList.remove('hidden');
+}
+
+function closeLightbox() {
+    if (!lightboxModal) return;
+    lightboxModal.classList.add('hidden');
+    setTimeout(() => { lightboxImg.src = ''; }, 300); // clear after fade out
+}
+
+if (closeLightboxBtn) {
+    closeLightboxBtn.addEventListener('click', closeLightbox);
+}
+
+if (lbPrevBtn) {
+    lbPrevBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // prevent modal close
+        if (currentLightboxIndex > 0) {
+            currentLightboxIndex--;
+            updateLightboxImg();
+        }
+    });
+}
+
+if (lbNextBtn) {
+    lbNextBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // prevent modal close
+        if (currentLightboxIndex < lightboxPhotos.length - 1) {
+            currentLightboxIndex++;
+            updateLightboxImg();
+        }
+    });
+}
+
+if (lightboxModal) {
+    lightboxModal.addEventListener('click', (e) => {
+        if (e.target === lightboxModal) {
+            closeLightbox();
+        }
+    });
+}
+
 // Check if API key is not properly set
 if (!window.GOOGLE_MAPS_API_KEY || window.GOOGLE_MAPS_API_KEY === "YOUR_API_KEY_HERE") {
     apiWarning.classList.remove('hidden');
@@ -189,20 +259,8 @@ function initMap() {
             zoomIndicator.style.backgroundColor = "";
             zoomIndicator.style.color = "";
         }
-        const showLabel = currentZoom >= 17;
-        topPlacesMarkers.forEach(marker => {
-            if (showLabel) {
-                marker.setLabel({
-                    text: marker.placeInfoText,
-                    color: "#f8fafc",
-                    fontSize: "12px",
-                    fontWeight: "600",
-                    className: "map-place-label"
-                });
-            } else {
-                marker.setLabel(null);
-            }
-        });
+        // Removed label toggling based on zoom level per user request
+
     });
 
     updateUI();
@@ -352,14 +410,26 @@ function handlePlacesResult(results, status, pagination) {
 }
 
 function createPlaceMarker(place) {
-    const showLabel = map.getZoom() >= 17;
     const infoText = `${place.name} (⭐ ${place.rating ? Number(place.rating).toFixed(1) : "0.0"} / 리뷰 ${place.user_ratings_total || 0}개)`;
 
-    const isRestaurant = place.types && place.types.includes('restaurant');
-    const reviewCount = place.user_ratings_total || 500;
+    const types = place.types || [];
+    const isLodging = types.includes('lodging');
+    const isFood = types.some(t => ['restaurant', 'cafe', 'food', 'bakery', 'bar', 'meal_takeaway', 'meal_delivery'].includes(t));
+    const showRestaurantIcon = isFood && !isLodging;
+
+    // 별점 구간에 따른 극적인 아이콘 크기 변화
+    const rating = place.rating || 4.0;
+    let dynamicScale = 1.0;
     
-    // Calculate a dynamic scale: Base 1.0, increases with log of review count
-    const dynamicScale = Math.max(1.0, 1.0 + Math.log10(reviewCount / 500) * 0.4);
+    if (rating >= 4.8) {
+        dynamicScale = 2.0; // 아주 크게
+    } else if (rating > 4.5) {
+        dynamicScale = 1.6; // 크게
+    } else if (rating >= 4.3) {
+        dynamicScale = 1.2; // 작게
+    } else {
+        dynamicScale = 0.8; // 아주 작게
+    }
 
     // Dynamic Color representing rating (4.0 ~ 5.0) => (Blue ~ Pink ~ Red) -> HSL Hue (240 ~ 360)
     const baseRating = Math.max(4.0, Math.min(5.0, place.rating || 4.0));
@@ -369,7 +439,7 @@ function createPlaceMarker(place) {
     // Bed (Hotel/Lodging) SVG path
     let svgPath = 'M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z';
     // Fork and Knife (Restaurant) SVG path
-    if (isRestaurant) {
+    if (showRestaurantIcon) {
         svgPath = 'M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z';
     }
 
@@ -385,14 +455,7 @@ function createPlaceMarker(place) {
             strokeColor: "#0f172a",
             scale: dynamicScale,
             anchor: new google.maps.Point(12, 12)
-        },
-        label: showLabel ? {
-            text: infoText,
-            color: "#f8fafc",
-            fontSize: "12px",
-            fontWeight: "600",
-            className: "map-place-label"
-        } : null
+        }
     });
 
     marker.placeInfoText = infoText;
@@ -438,6 +501,7 @@ function renderDetailsPanel(place) {
     // Photos
     dpPhotos.innerHTML = '';
     dpPhotos.scrollLeft = 0;
+    dpPhotos.dataset.currentIndex = "0";
     if (place.photos && place.photos.length > 0) {
         if (place.photos.length <= 1) {
             prevPhotoBtn.style.display = 'none';
@@ -451,11 +515,15 @@ function renderDetailsPanel(place) {
             nextPhotoBtn.style.opacity = '';
             nextPhotoBtn.style.pointerEvents = '';
         }
-        place.photos.forEach(photoObj => {
+        place.photos.forEach((photoObj, index) => {
             const imgUrl = photoObj.getUrl({ maxWidth: 400, maxHeight: 300 });
             const img = document.createElement('img');
             img.className = 'dp-photo-card';
             img.src = imgUrl;
+            img.style.cursor = 'zoom-in'; // Better UX for image zoom
+            img.addEventListener('click', () => {
+                openLightbox(place.photos, index);
+            });
             dpPhotos.appendChild(img);
         });
     } else {
@@ -535,6 +603,7 @@ function updateNavBtnVisibility() {
     const cards = dpPhotos.querySelectorAll('.dp-photo-card');
     if (!cards.length) return;
     const currentIndex = getCenteredPhotoIndex();
+    dpPhotos.dataset.currentIndex = currentIndex.toString();
     // Hide prev button on first photo
     prevPhotoBtn.style.opacity = currentIndex === 0 ? '0' : '';
     prevPhotoBtn.style.pointerEvents = currentIndex === 0 ? 'none' : '';
@@ -550,22 +619,34 @@ dpPhotos.addEventListener('scroll', () => {
     navScrollTimer = setTimeout(updateNavBtnVisibility, 80);
 });
 
+let isGalleryScrolling = false;
+
 prevPhotoBtn.addEventListener('click', () => {
+    if (isGalleryScrolling) return;
+    isGalleryScrolling = true;
     const cards = dpPhotos.querySelectorAll('.dp-photo-card');
-    if (!cards.length) return;
-    const currentIndex = getCenteredPhotoIndex();
-    if (currentIndex > 0) {
-        cards[currentIndex - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    let idx = parseInt(dpPhotos.dataset.currentIndex || "0", 10);
+    if (idx > 0) {
+        idx--;
+        dpPhotos.dataset.currentIndex = idx.toString();
+        const target = cards[idx];
+        dpPhotos.scrollTo({ left: target.offsetLeft - dpPhotos.offsetLeft, behavior: 'smooth' });
     }
+    setTimeout(() => isGalleryScrolling = false, 400);
 });
 
 nextPhotoBtn.addEventListener('click', () => {
+    if (isGalleryScrolling) return;
+    isGalleryScrolling = true;
     const cards = dpPhotos.querySelectorAll('.dp-photo-card');
-    if (!cards.length) return;
-    const currentIndex = getCenteredPhotoIndex();
-    if (currentIndex < cards.length - 1) {
-        cards[currentIndex + 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    let idx = parseInt(dpPhotos.dataset.currentIndex || "0", 10);
+    if (idx < cards.length - 1) {
+        idx++;
+        dpPhotos.dataset.currentIndex = idx.toString();
+        const target = cards[idx];
+        dpPhotos.scrollTo({ left: target.offsetLeft - dpPhotos.offsetLeft, behavior: 'smooth' });
     }
+    setTimeout(() => isGalleryScrolling = false, 400);
 });
 
 // Expose initMap for the API callback

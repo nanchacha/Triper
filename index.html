@@ -71,6 +71,14 @@
                 <button id="add-route-btn" class="btn btn-primary">Add to Route</button>
             </div>
         </aside>
+
+        <!-- Photo Lightbox Overlay -->
+        <div id="photo-lightbox" class="lightbox-overlay hidden">
+            <button id="close-lightbox-btn" class="lightbox-close">&times;</button>
+            <button id="lb-prev-btn" class="nav-btn lb-nav-btn lb-prev">❮</button>
+            <img id="lightbox-img" class="lightbox-img" src="" alt="Enlarged Photo">
+            <button id="lb-next-btn" class="nav-btn lb-nav-btn lb-next">❯</button>
+        </div>
     </div>
 
     <!-- Load config and dynamically inject Google Maps script to avoid hardcoding API Key -->
