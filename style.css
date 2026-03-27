@@ -117,7 +117,7 @@ body {
 
 .waypoint-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
@@ -135,6 +135,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 4px;
     width: 28px;
     height: 28px;
     background: var(--accent);
@@ -157,6 +158,94 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Waypoint Memo UI */
+.waypoint-memo {
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+.memo-display {
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: pre-wrap;
+    line-height: 1.4;
+    word-break: break-word;
+    font-size: 0.85rem;
+}
+
+.memo-display:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.memo-display.empty {
+    font-style: italic;
+    opacity: 0.7;
+    text-align: center;
+    padding: 0.4rem;
+}
+
+.memo-edit-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.memo-input {
+    width: 100%;
+    min-height: 60px;
+    padding: 0.5rem 0.75rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) inset;
+}
+
+.memo-input:focus {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2) inset;
+}
+
+.memo-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.btn-memo {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.btn-memo:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-memo.save {
+    background: var(--accent);
+}
+
+.btn-memo.save:hover {
+    background: var(--accent-hover);
 }
 
 .sidebar-actions {

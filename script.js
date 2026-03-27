@@ -4,7 +4,8 @@ let markers = [];
 let routePath = null;
 let waypoints = []; // Stores the actual LatLng objects
 let waypointNames = []; // Stores the names of the selected places
-let discoveredPlaces = new Set();
+let waypointMemos = []; // Stores the memos for each selected place
+
 let debounceTimer;
 let topPlacesMarkers = [];
 let hoverTimer = null;
@@ -295,6 +296,7 @@ function addPoint(latLng, placeName) {
     markers.push(marker);
     waypoints.push(latLng);
     waypointNames.push(placeName || formatCoords(latLng.lat(), latLng.lng()));
+    waypointMemos.push(""); // Empty memo initially
 
     // Update Polyline
     routePath.setPath(waypoints);
@@ -311,6 +313,7 @@ function clearMap() {
     markers = [];
     waypoints = [];
     waypointNames = [];
+    waypointMemos = [];
 
     // Clear Polyline
     if (routePath) {
@@ -348,15 +351,67 @@ function updateUI() {
                 <div class="waypoint-coords" style="color: var(--text-secondary); font-size: 0.75rem;">
                     ${formatCoords(latLng.lat(), latLng.lng())}
                 </div>
+                <div class="waypoint-memo" id="memo-container-${i}"></div>
             </div>
         `;
         waypointsList.appendChild(li);
+        
+        // Render the memo UI for this item
+        renderMemoUI(i);
     });
 
     // Auto-scroll to bottom of list
     const container = document.querySelector('.waypoints-container');
     container.scrollTop = container.scrollHeight;
 }
+
+// Memory UI rendering function
+function renderMemoUI(index, isEditing = false) {
+    const container = document.getElementById(`memo-container-${index}`);
+    if (!container) return;
+
+    if (isEditing) {
+        container.innerHTML = `
+            <div class="memo-edit-container">
+                <textarea class="memo-input" id="memo-input-${index}" placeholder="메모할 내용을 작성해 보세요... (예: 오후 3시 예약)"></textarea>
+                <div class="memo-actions">
+                    <button class="btn-memo" onclick="renderMemoUI(${index}, false)">취소</button>
+                    <button class="btn-memo save" onclick="saveMemo(${index})">저장</button>
+                </div>
+            </div>
+        `;
+        const input = document.getElementById(`memo-input-${index}`);
+        input.value = waypointMemos[index];
+        input.focus();
+    } else {
+        const text = waypointMemos[index];
+        if (text) {
+            // Escape HTML and convert newlines to <br>
+            const displaySafeText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            container.innerHTML = `
+                <div class="memo-display" onclick="renderMemoUI(${index}, true)">
+                    ${displaySafeText}
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="memo-display empty" onclick="renderMemoUI(${index}, true)">
+                    <span style="opacity: 0.8;">+ 메모 추가하기</span>
+                </div>
+            `;
+        }
+    }
+}
+
+// Expose these globally for inline onclick handlers in the dynamically generated HTML
+window.renderMemoUI = renderMemoUI;
+window.saveMemo = function(index) {
+    const input = document.getElementById(`memo-input-${index}`);
+    if (input) {
+        waypointMemos[index] = input.value.trim();
+        renderMemoUI(index, false); // Switch back to view mode
+    }
+};
 
 // Event Listeners
 clearBtn.addEventListener('click', clearMap);
