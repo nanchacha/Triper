@@ -8,6 +8,7 @@ let waypointMemos = []; // Stores the memos for each selected place
 
 let debounceTimer;
 let topPlacesMarkers = [];
+let discoveredPlaces = new Set(); // Tracks place IDs to prevent duplicates
 let hoverTimer = null;
 let currentPlaceForDetails = null;
 
@@ -624,6 +625,11 @@ loadDataBtn.addEventListener('click', () => {
         alert("지도를 좀 더 확대해 주세요. (줌 레벨 13 이상에서 검색 가능)");
         return;
     }
+    // Clear previous search results
+    topPlacesMarkers.forEach(m => m.setMap(null));
+    topPlacesMarkers = [];
+    discoveredPlaces.clear();
+
     const originalText = loadDataBtn.textContent;
     loadDataBtn.textContent = '검색 중...';
     fetchTopPlaces();
